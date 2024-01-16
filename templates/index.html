@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% import "_macros_page.html" as macros %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-8">
+        {% if view_tag %}
+        <h3>Viewing tag: <a href="/?{{view_tag}}">{{view_tag}}</a></h3>
+        {% endif %}
+        
+        {% for photo in photos %}
+        <div class="quote" itemscope="" itemtype="http://schema.org/CreativeWork">
+            <div class="text" itemprop="text">
+                <a href="/api/photos/{{photo.photo.id}}" style="text-decoration: none">
+                    <img src="{{photo.photo.file_url}}" alt="!{{photo.photo.description}}"  height="200">
+                </a>
+                <div class="photo-info">
+                    <div class="time-qr">
+                        <div>
+                            <p>Owner: {{photo.photo.username}}</p> 
+                            <p>{{photo.photo.created_at}}</p> 
+                        </div>
+                        {% if photo.photo.qr_url %}
+                        <img src="{{photo.photo.qr_url}}" alt="QR code"  height="80">
+                        {% endif %}
+                    </div>
+                    <p>{{photo.photo.description}}</p> 
+                </div>
+            </div>
+            <div class="tags">
+                Tags:
+                {% for tag in photo.tags %}
+                <!-- <p class="tag">{{tag.name}}</a> -->
+                <a class="tag" href="/?tag={{tag.name}}">{{tag.name}}</a>
+                {% endfor %}
+            </div>
+            <div class="comments">
+                {% for comm in photo.comments %}
+                <!-- Commets: -->
+                <p class="comment">{{comm.username}}: <span>{{comm.text}}</span></a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4 tags-box">
+        {% if user.is_authenticated %}
+        <!-- <p>{{user.roles|string}}</p> -->
+        {% if user.roles|string != 'UserRole.user' %}
+        <div style="padding-bottom: 8px;">
+            <a href="/api/users" class="btn btn-primary">User management</a>
+        </div>
+        {% endif %}
+        <a class="btn btn-primary" href="/api/photos/photo-add" role="button">Add photo</a>
+        {% endif %}
+
+        <h2>Top Ten tags</h2>
+        
+        {% for tag in top_tags %}
+        <div class="tag-item">
+            <a class="tag" style="font-size: {{tag.tag_size}}" href="/?tag={{tag.tag_name}}">{{tag.tag_name}}</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{{ macros.pagination_widget(pages, '/') }}
+
+{% endblock %}
